@@ -4,19 +4,29 @@ namespace Samples.Testing.Domain
 {
     public interface ICalculator
     {
-        double Calculate(double amount, int currencyCode);
+        double Calculate(double amount, int fromCurrencyCode, int toCurrencyCode);
     }
 
     public class Calculator : ICalculator
     {
-        public double Calculate(double amount, int currencyCode)
+        private readonly ICurrencyRatesProvider _currencyRatesProvider;
+
+        public Calculator(ICurrencyRatesProvider currencyRatesProvider)
         {
-            if (currencyCode == 7)
-            {
-                return amount;
-            }
-            throw new InvalidOperationException($"Currency code {currencyCode} is not supported");
-            
+            _currencyRatesProvider = currencyRatesProvider;
         }
-    }
+
+        public double Calculate(double amount, int fromCurrencyCode, int toCurrencyCode)
+        {
+            try
+            {
+                var rate = _currencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode);
+                return amount*rate;
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException($"Currency code {toCurrencyCode} is not supported");
+            }                       
+        }
+    }    
 }

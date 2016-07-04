@@ -1,4 +1,5 @@
 ﻿using System;
+using FakeItEasy;
 using FluentAssertions;
 using Samples.Testing.Domain;
 using Xunit;
@@ -11,12 +12,16 @@ namespace Samples.Testing.UnitTests
         public void Calculate_CurrencyCodeIsSupported_CalculatedAmountIsCorrect()
         {
             var originalAmount = 5;
-            var currencyCode = 7;
+            var fromCurrencyCode = 7;
+            var toCurrencyCode = 13;
+            var conversionRate = 1.5;
+            var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
+            A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Returns(conversionRate);
 
-            var calculator = new Calculator();
-            var calculatedAmount = calculator.Calculate(originalAmount, currencyCode);
+            var calculator = new Calculator(stubCurrencyRatesProvider);
+            var calculatedAmount = calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode);
 
-            var expectedAmount = 5;
+            var expectedAmount = 7.5;
             calculatedAmount.Should().Be(expectedAmount);
         }
 
@@ -24,13 +29,16 @@ namespace Samples.Testing.UnitTests
         public void Calculate_CurrencyCodeIsNotSupported_UnableToCalculate()
         {
             var originalAmount = 5;
-            var currencyCode = 8;
+            var fromCurrencyCode = 7;
+            var toCurrencyCode = 14;
+            var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
+            A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Throws<Exception>();
 
-            var calculator = new Calculator();
-            var exception = Record.Exception(() => calculator.Calculate(originalAmount, currencyCode));
+            var calculator = new Calculator(stubCurrencyRatesProvider);
+            var exception = Record.Exception(() => calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode));
 
             exception.Should().NotBeNull()
-                .And.Subject.As<Exception>().Message.Should().Contain("unexpected currency code: 7");
+                .And.Subject.As<Exception>().Message.Should().Contain("Currency code 14 is not supported");
         }
     }
 }
