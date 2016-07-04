@@ -7,10 +7,11 @@ using Xunit;
 
 namespace Samples.Testing.UnitTests
 {
-    public class CalculatorTests
-    {        
+    public class CalculatorTests : TestsBase.WithRootObject<ICalculator>
+    {            
         public CalculatorTests()
-        {            
+        {                
+            Container.RegisterType<ICalculator, Calculator>();
         }
 
         [Fact]
@@ -19,16 +20,14 @@ namespace Samples.Testing.UnitTests
             var originalAmount = 5;
             var fromCurrencyCode = 7;
             var toCurrencyCode = 13;
-            var conversionRate = 1.5;
-            var container = new UnityContainer();
+            var conversionRate = 1.5;            
             var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
             A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Returns(conversionRate);
-            container.RegisterInstance(stubCurrencyRatesProvider);
+            RegisterInstance(stubCurrencyRatesProvider);
             var dummyLogProvider = A.Fake<ILogProvider>();
-            container.RegisterInstance(dummyLogProvider);
-            container.RegisterType<ICalculator, Calculator>();
+            RegisterInstance(dummyLogProvider);            
             
-            var calculator = container.Resolve<ICalculator>();
+            var calculator = GetRootObject();
             var calculatedAmount = calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode);
 
             var expectedAmount = 7.5;
@@ -40,16 +39,14 @@ namespace Samples.Testing.UnitTests
         {
             var originalAmount = 5;
             var fromCurrencyCode = 7;
-            var toCurrencyCode = 14;
-            var container = new UnityContainer();
+            var toCurrencyCode = 14;            
             var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
-            container.RegisterInstance(stubCurrencyRatesProvider);
             A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Throws<Exception>();
+            RegisterInstance(stubCurrencyRatesProvider);            
             var mockLogProvider = A.Fake<ILogProvider>();
-            container.RegisterInstance(mockLogProvider);
-            container.RegisterType<ICalculator, Calculator>();
+            RegisterInstance(mockLogProvider);
 
-            var calculator = container.Resolve<ICalculator>();
+            var calculator = GetRootObject();
             var exception = Record.Exception(() => calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode));
 
             exception.Should().NotBeNull()
