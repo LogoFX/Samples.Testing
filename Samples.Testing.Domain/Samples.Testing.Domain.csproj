@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Calculator.cs" />
     <Compile Include="CurrencyRatesProvider.cs" />
+    <Compile Include="ILogProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

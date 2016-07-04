@@ -17,8 +17,9 @@ namespace Samples.Testing.UnitTests
             var conversionRate = 1.5;
             var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
             A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Returns(conversionRate);
+            var dummyLogProvider = A.Fake<ILogProvider>();
 
-            var calculator = new Calculator(stubCurrencyRatesProvider);
+            var calculator = new Calculator(stubCurrencyRatesProvider, dummyLogProvider);
             var calculatedAmount = calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode);
 
             var expectedAmount = 7.5;
@@ -33,12 +34,14 @@ namespace Samples.Testing.UnitTests
             var toCurrencyCode = 14;
             var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
             A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Throws<Exception>();
+            var mockLogProvider = A.Fake<ILogProvider>();
 
-            var calculator = new Calculator(stubCurrencyRatesProvider);
+            var calculator = new Calculator(stubCurrencyRatesProvider, mockLogProvider);
             var exception = Record.Exception(() => calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode));
 
             exception.Should().NotBeNull()
                 .And.Subject.As<Exception>().Message.Should().Contain("Currency code 14 is not supported");
-        }
-    }
+            A.CallTo(() => mockLogProvider.Log("Fatal exception has happened")).MustHaveHappened(Repeated.Exactly.Once);
+        }        
+    }    
 }

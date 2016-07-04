@@ -10,10 +10,12 @@ namespace Samples.Testing.Domain
     public class Calculator : ICalculator
     {
         private readonly ICurrencyRatesProvider _currencyRatesProvider;
+        private readonly ILogProvider _logProvider;
 
-        public Calculator(ICurrencyRatesProvider currencyRatesProvider)
+        public Calculator(ICurrencyRatesProvider currencyRatesProvider, ILogProvider logProvider)
         {
             _currencyRatesProvider = currencyRatesProvider;
+            _logProvider = logProvider;
         }
 
         public double Calculate(double amount, int fromCurrencyCode, int toCurrencyCode)
@@ -25,6 +27,7 @@ namespace Samples.Testing.Domain
             }
             catch (Exception)
             {
+                _logProvider.Log("Fatal exception has happened");
                 throw new InvalidOperationException($"Currency code {toCurrencyCode} is not supported");
             }                       
         }
