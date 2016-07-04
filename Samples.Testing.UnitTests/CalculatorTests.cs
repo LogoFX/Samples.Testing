@@ -21,11 +21,9 @@ namespace Samples.Testing.UnitTests
             var fromCurrencyCode = 7;
             var toCurrencyCode = 13;
             var conversionRate = 1.5;            
-            var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
-            A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Returns(conversionRate);
-            RegisterInstance(stubCurrencyRatesProvider);
-            var dummyLogProvider = A.Fake<ILogProvider>();
-            RegisterInstance(dummyLogProvider);            
+            RegisterBuilder(() => Steps.SetupSuccesfulConversion(fromCurrencyCode, toCurrencyCode,
+                conversionRate));
+            RegisterBuilder(Steps.SetupLogProvider);            
             
             var calculator = GetRootObject();
             var calculatedAmount = calculator.Calculate(originalAmount, fromCurrencyCode, toCurrencyCode);
@@ -40,10 +38,8 @@ namespace Samples.Testing.UnitTests
             var originalAmount = 5;
             var fromCurrencyCode = 7;
             var toCurrencyCode = 14;            
-            var stubCurrencyRatesProvider = A.Fake<ICurrencyRatesProvider>();
-            A.CallTo(() => stubCurrencyRatesProvider.GetRate(fromCurrencyCode, toCurrencyCode)).Throws<Exception>();
-            RegisterInstance(stubCurrencyRatesProvider);            
-            var mockLogProvider = A.Fake<ILogProvider>();
+            RegisterBuilder(() => Steps.SetupFailedConversion(fromCurrencyCode, toCurrencyCode));             
+            var mockLogProvider = Steps.SetupLogProvider();
             RegisterInstance(mockLogProvider);
 
             var calculator = GetRootObject();

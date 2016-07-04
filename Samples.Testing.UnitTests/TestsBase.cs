@@ -29,5 +29,10 @@ namespace Samples.Testing.UnitTests
         {
             Container.RegisterInstance(instance);
         }
+
+        protected void RegisterBuilder<T>(Func<T> instanceCreator)
+        {
+            Container.RegisterInstance(instanceCreator());
+        }
     }    
 }
