@@ -5,34 +5,40 @@ namespace Samples.Testing.UnitTests
 {
     public abstract class TestsBase : IDisposable
     {
-        public abstract class WithRootObject<TRootObject> : TestsBase
+        public abstract class WithRootObject<TRootObject, TRootObjectImplementation> : TestsBase 
+            where TRootObjectImplementation : TRootObject
         {
+            protected WithRootObject()
+            {
+                _container.RegisterType<TRootObject, TRootObjectImplementation>();
+            }
+
             protected TRootObject GetRootObject()
             {
-                return Container.Resolve<TRootObject>();
+                return _container.Resolve<TRootObject>();
             }
         }
 
-        protected readonly IUnityContainer Container;
+        private readonly IUnityContainer _container;
 
         protected TestsBase()
         {
-            Container = new UnityContainer();
+            _container = new UnityContainer();            
         }
 
         public void Dispose()
         {
-            Container.Dispose();
+            _container.Dispose();
         }
 
         protected void RegisterInstance<T>(T instance)
         {
-            Container.RegisterInstance(instance);
+            _container.RegisterInstance(instance);
         }
 
         protected void RegisterBuilder<T>(Func<T> instanceCreator)
         {
-            Container.RegisterInstance(instanceCreator());
+            _container.RegisterInstance(instanceCreator());
         }
     }    
 }
