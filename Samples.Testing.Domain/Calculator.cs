@@ -1,4 +1,6 @@
-﻿namespace Samples.Testing.Domain
+﻿using System;
+
+namespace Samples.Testing.Domain
 {
     public interface ICalculator
     {
@@ -9,7 +11,12 @@
     {
         public double Calculate(double amount, int currencyCode)
         {
-            return 5;
+            if (currencyCode == 7)
+            {
+                return amount;
+            }
+            throw new InvalidOperationException($"Currency code {currencyCode} is not supported");
+            
         }
     }
 }
