@@ -16,7 +16,8 @@ namespace Samples.Testing.UnitTests
             var calculator = new Calculator();
             var calculatedAmount = calculator.Calculate(originalAmount, currencyCode);
 
-            calculatedAmount.Should().Be(5);
+            var expectedAmount = 5;
+            calculatedAmount.Should().Be(expectedAmount);
         }
 
         [Fact]
